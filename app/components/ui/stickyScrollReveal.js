@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import DetailBlock from "../Philosophy/DetailBlock";
+import DetailBlock from "@/components/layout/landing/Philosophy/DetailBlock";
 import { Blocks, Lock, ShieldAlert } from "lucide-react";
 
 const StickyScrollSection = () => {

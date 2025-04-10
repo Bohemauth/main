@@ -1,7 +1,7 @@
-import Capabilities from "@/components/Capabilities";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import Philosophy from "@/components/Philosophy";
+import Capabilities from "@/components/layout/landing/Capabilities";
+import Footer from "@/components/layout/landing/Footer";
+import Header from "@/components/layout/landing/Header";
+import Philosophy from "@/components/layout/landing/Philosophy";
 
 export default function Home() {
   return (

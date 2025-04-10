@@ -1,4 +1,4 @@
-import StickyScrollSection from "./ui/stickyScrollReveal";
+import StickyScrollSection from "@/components/ui/stickyScrollReveal";
 
 export default function Philosophy() {
   return (

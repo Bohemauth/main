@@ -1,8 +1,10 @@
 "use client";
 
 import { Button } from "@heroui/react";
+import { useRouter } from "next/navigation";
 
 export default function MainBlock() {
+  const router = useRouter();
   return (
     <div className="border border-[var(--foreground)] rounded-lg p-5 flex flex-col z-10 w-[350px]">
       <div className="flex flex-col mb-2">
@@ -23,6 +25,7 @@ export default function MainBlock() {
           variant="outline"
           className="bg-white text-black rounded-none"
           size="sm"
+          onPress={() => router.push("/login")}
         >
           Launch
         </Button>
