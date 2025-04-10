@@ -10,8 +10,8 @@ const tino = Tinos({
 });
 
 export const metadata = {
-  title: "Melra",
-  description: "The Sovereign Delegate",
+  title: "BohemAuth",
+  description: "BohemAuth - Authentic Products. Verified Truths.",
 };
 
 export default function RootLayout({ children }) {
