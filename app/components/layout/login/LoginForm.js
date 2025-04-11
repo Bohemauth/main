@@ -1,23 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { Input, InputOtp } from "@heroui/react";
 import { Loader2, Mail } from "lucide-react";
-import { toast } from "sonner";
 import useOnboard from "@/hooks/useOnboard";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [isRequestingLogin, setIsRequestingLogin] = useState(false);
-  const [isRequestingSignUp, setIsRequestingSignUp] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
   const [isOTPWindow, setIsOTPWindow] = useState(false);
   const [otp, setOtp] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timeout, setTimeout] = useState(0);
-  const { requestLogin } = useOnboard();
+  const { requestLogin, verifyLogin, resend } = useOnboard();
+
+  useEffect(() => {
+    if (timeout > 0) {
+      const interval = setInterval(() => {
+        setTimeout((prev) => prev - 1);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [timeout]);
 
   if (isOTPWindow) {
     return (
@@ -61,7 +68,9 @@ export default function LoginForm() {
         <div className="mt-1 flex w-full gap-2">
           <Button
             className="w-full rounded-none p-7 bg-white text-black"
-            onPress={() => {}}
+            onPress={() => {
+              verifyLogin(email, otp, setIsVerifying);
+            }}
             isDisabled={isVerifying || isResending}
           >
             {isVerifying ? <Loader2 className="animate-spin" /> : "Verify"}
@@ -70,7 +79,7 @@ export default function LoginForm() {
             className="w-full rounded-none p-7 border border-white/40 "
             variant="outline"
             onPress={() => {
-              resend(email, setIsResending, isSignUp, setTimeout);
+              resend(email, setIsResending, setTimeout);
             }}
             isDisabled={isResending || isVerifying || timeout > 0}
           >
@@ -117,14 +126,9 @@ export default function LoginForm() {
           <Button
             className="w-full rounded-none p-7 bg-white text-black"
             onPress={() => {
-              requestLogin(
-                email,
-                setIsOTPWindow,
-                setIsRequestingLogin,
-                setIsSignUp
-              );
+              requestLogin(email, setIsOTPWindow, setIsRequestingLogin);
             }}
-            isDisabled={isRequestingSignUp || isRequestingLogin}
+            isDisabled={isRequestingLogin}
           >
             {isRequestingLogin ? (
               <Loader2 className="animate-spin" />
