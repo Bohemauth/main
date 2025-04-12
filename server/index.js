@@ -6,6 +6,8 @@ import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import allowedOrigins from "./allowedOrigins.js";
 
+import userRouter from "./route/user.js";
+
 // Load environment variables
 dotenv.config({ path: "./.env" });
 const workers = process.env.WEB_CONCURRENCY || 5;
@@ -50,6 +52,8 @@ async function startWorker(id) {
   app.get("/", (req, res) => {
     res.send("Bohemauth Server is running");
   });
+
+  app.use("/api/user", userRouter);
 
   app.get("/health", (req, res) => {
     return res.json({

@@ -2,10 +2,22 @@
 
 import { toast } from "sonner";
 import { z } from "zod";
-import { useLoginWithEmail } from "@privy-io/react-auth";
+import {
+  useLoginWithEmail,
+  useCreateWallet,
+  useSignTypedData,
+  useUser as usePrivyUser,
+} from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
+import useUser from "@/hooks/useUser";
 
 export default function useOnboard() {
   const { sendCode, loginWithCode } = useLoginWithEmail();
+  const router = useRouter();
+  const { refreshUser } = usePrivyUser();
+  const { getUser, createUser: createDbUser } = useUser();
+  const { createWallet } = useCreateWallet();
+  const { signTypedData } = useSignTypedData();
 
   const requestLogin = async (email, setIsOTPWindow, setIsRequestingLogin) => {
     try {
@@ -42,6 +54,22 @@ export default function useOnboard() {
 
       await loginWithCode({ code: otp });
 
+      let loggedInUser = await refreshUser();
+
+      if (!loggedInUser.wallet) {
+        const wallet = await createWallet();
+        loggedInUser = await refreshUser();
+      }
+
+      const dbUser = await getUser(loggedInUser.wallet.address);
+
+      if (!dbUser) {
+        router.push("/signup");
+        return;
+      } else {
+        router.push("/dashboard");
+      }
+
       toast.success("Login successful");
     } catch (error) {
       console.log(error);
@@ -64,5 +92,61 @@ export default function useOnboard() {
     }
   };
 
-  return { requestLogin, verifyLogin, resend };
+  const createUser = async (name, description, role, setIsCreating) => {
+    try {
+      setIsCreating(true);
+
+      const user = await refreshUser();
+      console.log(user);
+
+      const domain = {
+        name: "bohemauth",
+        version: "1",
+      };
+
+      const types = {
+        NewUser: [
+          { name: "name", type: "string" },
+          { name: "description", type: "string" },
+          { name: "role", type: "string" },
+        ],
+      };
+
+      const message = {
+        name,
+        description,
+        role,
+      };
+
+      const signature = await signTypedData(
+        {
+          domain,
+          types,
+          primaryType: "NewUser",
+          message,
+        },
+        {
+          address: user.wallet.address,
+        }
+      );
+
+      await createDbUser(
+        user.wallet.address,
+        name,
+        description,
+        role,
+        signature
+      );
+
+      toast.success("User created successfully");
+      router.push("/dashboard");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to create user");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return { requestLogin, verifyLogin, resend, createUser };
 }
