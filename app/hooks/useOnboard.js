@@ -97,7 +97,6 @@ export default function useOnboard() {
       setIsCreating(true);
 
       const user = await refreshUser();
-      console.log(user);
 
       const domain = {
         name: "bohemauth",
@@ -135,7 +134,7 @@ export default function useOnboard() {
         name,
         description,
         role,
-        signature
+        signature.signature
       );
 
       toast.success("User created successfully");

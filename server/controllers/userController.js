@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import prisma from "../utils/prisma.js";
+import { verifySignature } from "../utils/signature.js";
 
 const getUser = async (req, res) => {
   try {
@@ -52,14 +53,15 @@ const createUser = async (req, res) => {
       role,
     };
 
-    const recoveredAddress = ethers.utils.verifyTypedData(
+    const isValid = await verifySignature(
       domain,
       types,
       message,
-      signature
+      signature,
+      address
     );
 
-    if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+    if (!isValid) {
       return res.json({
         success: false,
         message: "Invalid signature",
