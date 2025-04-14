@@ -5,6 +5,7 @@ import "./globals.css";
 import UiProvider from "@/providers/UiProvider";
 import { Toaster } from "sonner";
 import PrivyProviders from "@/providers/PrivyProvider";
+import ReduxProvider from "@/providers/ReduxProvider";
 
 const tino = Tinos({
   subsets: ["latin"],
@@ -23,24 +24,26 @@ export default function RootLayout({ children }) {
         className={`${tino.className} antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
-        <PrivyProviders>
-          <UiProvider>
-            <Toaster
-              position="bottom-center"
-              richColors
-              toastOptions={{
-                className: `flex items-center justify-center text-center border rounded-none ${tino.className}`,
-                style: {
-                  color: "white",
-                  backgroundColor: "var(--background)",
-                  borderColor: "white",
-                  borderRadius: "0",
-                },
-              }}
-            />
-            {children}
-          </UiProvider>
-        </PrivyProviders>
+        <ReduxProvider>
+          <PrivyProviders>
+            <UiProvider>
+              <Toaster
+                position="bottom-center"
+                richColors
+                toastOptions={{
+                  className: `flex items-center justify-center text-center border rounded-none ${tino.className}`,
+                  style: {
+                    color: "white",
+                    backgroundColor: "var(--background)",
+                    borderColor: "white",
+                    borderRadius: "0",
+                  },
+                }}
+              />
+              {children}
+            </UiProvider>
+          </PrivyProviders>
+        </ReduxProvider>
       </body>
     </html>
   );
