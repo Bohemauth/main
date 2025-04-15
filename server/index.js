@@ -7,6 +7,7 @@ import { rateLimit } from "express-rate-limit";
 import allowedOrigins from "./allowedOrigins.js";
 
 import userRouter from "./route/user.js";
+import productRouter from "./route/product.js";
 
 // Load environment variables
 dotenv.config({ path: "./.env" });
@@ -54,6 +55,7 @@ async function startWorker(id) {
   });
 
   app.use("/api/user", userRouter);
+  app.use("/api/product", productRouter);
 
   app.get("/health", (req, res) => {
     return res.json({
