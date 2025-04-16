@@ -19,7 +19,7 @@ model User {
     role               Role
     Products           Product[]
     ManufacturerShards ManufacturerShard[]
-    DistributorShards  DistributorShard[]
+    Claims             Claim[]
     createdAt          DateTime            @default(now())
     updatedAt          DateTime            @updatedAt
 }
@@ -32,10 +32,9 @@ model Product {
     User               User                @relation(fields: [userId], references: [address])
     userId             String
     ManufacturerShards ManufacturerShard[]
-    DistributorShards  DistributorShard[]
     status             String
-    shard              String
-    ProductHash        String
+    shard              String?
+    ProductHash        String?
     createdAt          DateTime            @default(now())
     updatedAt          DateTime            @updatedAt
 
@@ -55,15 +54,13 @@ model ManufacturerShard {
     @@index([userId, productId])
 }
 
-model DistributorShard {
-    Product   Product  @relation(fields: [productId], references: [id])
-    productId String
+model Claim {
+    id        String   @id
     User      User     @relation(fields: [userId], references: [address])
     userId    String
-    shard     String
+    productId String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@id([userId, productId])
     @@index([userId, productId])
 }

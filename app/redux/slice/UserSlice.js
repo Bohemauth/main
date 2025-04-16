@@ -6,6 +6,7 @@ const userSlice = createSlice({
   initialState: {
     user: null,
     isInitializing: true,
+    products: [],
   },
 
   reducers: {
@@ -15,9 +16,12 @@ const userSlice = createSlice({
     setIsInitializing: (state, action) => {
       state.isInitializing = action.payload;
     },
+    setProducts: (state, action) => {
+      state.products = action.payload;
+    },
   },
 });
 
-export const { setUser, setIsInitializing } = userSlice.actions;
+export const { setUser, setIsInitializing, setProducts } = userSlice.actions;
 
 export default userSlice.reducer;

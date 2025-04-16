@@ -5,12 +5,14 @@ import useUser from "./useUser";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slice/UserSlice";
+import useProduct from "./useProduct";
 
 export default function useInitialize() {
   const { user: loadedPrivyUser } = usePrivyUser();
   const { getUser } = useUser();
   const router = useRouter();
   const dispatch = useDispatch();
+  const { listProducts } = useProduct();
 
   const initialize = async () => {
     try {
@@ -32,6 +34,8 @@ export default function useInitialize() {
       }
 
       dispatch(setUser(user));
+
+      await listProducts();
     } catch (error) {
       console.log(error);
     }

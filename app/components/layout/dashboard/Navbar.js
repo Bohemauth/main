@@ -32,20 +32,19 @@ export default function Navbar() {
           <span className="font-bold inline-block text-2xl">BohemAuth</span>
         </div>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="flex items-center gap-6 -ml-24">
           <Link href="/dashboard" className="text-sm font-medium">
             Products
           </Link>
           <Link
-            href="/distributors"
+            href="/claims"
             className="text-sm font-medium text-muted-foreground"
           >
-            Distributors
+            Claims
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
-          <span className="text-white text-">{user?.name}</span>
+        <div className="hidden items-center gap-2 sm:flex">
           <Popover placement="bottom-end">
             <PopoverTrigger>
               <div className="flex items-center justify-center p-2 border-[var(--foreground)] border cursor-pointer">
@@ -54,8 +53,8 @@ export default function Navbar() {
             </PopoverTrigger>
             <PopoverContent className="rounded-none border border-[var(--foreground)]">
               <div className="px-1 py-2 flex flex-col gap-0.5 items">
-                <div className="flex items-center justify-between p-2 border-b border-[var(--foreground)]">
-                  <div className="text-xs">{user?.role}</div>
+                <div className="flex items-center justify-center p-2 border-b border-[var(--foreground)] ">
+                  <div className="text-xs text-center">{user?.role}</div>
                 </div>
 
                 <div className="text-small font-bold mt-2">{user?.name}</div>

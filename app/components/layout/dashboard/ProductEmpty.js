@@ -2,10 +2,12 @@
 
 import { Button } from "@heroui/react";
 import { FilePlus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
 export default function ProductEmpty() {
   const user = useSelector((state) => state.user.user);
+  const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="border border-[var(--foreground)] p-4 mb-4">
@@ -20,7 +22,9 @@ export default function ProductEmpty() {
       {user?.role === "MANUFACTURER" && (
         <Button
           className="rounded-none bg-white text-black w-fit mt-5"
-          onPress={() => {}}
+          onPress={() => {
+            router.push("/create");
+          }}
         >
           <Plus className="h-4 w-4" />
           Add Product

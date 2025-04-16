@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import prisma from "../utils/prisma.js";
 import { verifySignature } from "../utils/signature.js";
 

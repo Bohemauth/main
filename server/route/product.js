@@ -18,9 +18,11 @@ const upload = multer({
 import {
   createProduct,
   uploadProductImage,
+  listProducts,
 } from "../controllers/productController.js";
 
 router.post("/create", createProduct);
 router.post("/upload", upload.single("image"), uploadProductImage);
+router.get("/list/:address", listProducts);
 
 export default router;

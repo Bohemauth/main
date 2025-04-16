@@ -64,11 +64,11 @@ export default function SignupForm() {
   if (step === 1) {
     return (
       <>
-        <p className="mt-5 text-sm">Enter your Company Name</p>
+        <p className="mt-5 text-sm">Enter your Name</p>
 
         <Input
           type="text"
-          placeholder="Company Name"
+          placeholder="Name"
           className="border border-white/40 rounded-none mt-3 shadow-none"
           size="lg"
           variant="outline"
@@ -93,11 +93,11 @@ export default function SignupForm() {
           <Button
             className="w-full rounded-none p-7 bg-white text-black"
             onPress={() => {
-              setStep(2);
+              createUser(username, description, "MANUFACTURER", setIsCreating);
             }}
-            isDisabled={username === "" || description === ""}
+            isDisabled={isCreating || username === "" || description === ""}
           >
-            Next
+            {isCreating ? <Loader2 className="animate-spin" /> : "Create"}
           </Button>
         </div>
       </>
