@@ -121,8 +121,93 @@ export default function useProduct() {
     }
   };
 
+  const getProduct = async (id) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/product/get/${id}`
+      );
+      if (!response.data.success) {
+        toast.error("Failed to get product");
+        return null;
+      }
+      return response.data.product;
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to get product");
+      return null;
+    }
+  };
+
+  const editProduct = async (id, name, description, isUpdating) => {
+    try {
+      isUpdating(true);
+
+      if (!id || !name || !description) {
+        toast.error("Missing required fields");
+        return;
+      }
+
+      const domain = {
+        name: "bohemauth",
+        version: "1",
+      };
+
+      const types = {
+        EditProduct: [
+          { name: "id", type: "string" },
+          { name: "name", type: "string" },
+          { name: "description", type: "string" },
+        ],
+      };
+
+      const message = {
+        id,
+        name,
+        description,
+      };
+
+      const signature = await signTypedData(
+        {
+          domain,
+          types,
+          primaryType: "EditProduct",
+          message,
+        },
+        {
+          address: user.wallet.address,
+        }
+      );
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/product/edit`,
+        {
+          id,
+          name,
+          description,
+          signature: signature.signature,
+          address: user.wallet.address,
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Failed to edit product");
+        return;
+      }
+      toast.success("Product edited successfully");
+      await listProducts();
+      router.push("/dashboard");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to edit product");
+    } finally {
+      isUpdating(false);
+    }
+  };
+
   return {
     createProduct,
     listProducts,
+    getProduct,
+    editProduct,
   };
 }

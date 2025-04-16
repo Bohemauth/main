@@ -4,9 +4,11 @@ import { Button } from "@heroui/react";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ProductList({ products, search, setSearch }) {
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const filtered = products.filter((product) => {
@@ -48,7 +50,9 @@ export default function ProductList({ products, search, setSearch }) {
                     {product.status === "DRAFT" && (
                       <Button
                         className="rounded-none  bg-white text-black w-fit"
-                        onPress={() => {}}
+                        onPress={() => {
+                          router.push(`/edit/${product.id}`);
+                        }}
                       >
                         Edit Product
                       </Button>

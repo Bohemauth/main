@@ -140,4 +140,135 @@ const listProducts = async (req, res) => {
   }
 };
 
-export { createProduct, uploadProductImage, listProducts };
+const editProduct = async (req, res) => {
+  try {
+    const { id, name, description, address, signature } = req.body;
+
+    if (!id || !name || !description || !address || !signature) {
+      return res.json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      return res.json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    if (existingProduct.status !== "DRAFT") {
+      return res.json({
+        success: false,
+        message: "Only products in DRAFT status can be edited",
+      });
+    }
+
+    const domain = {
+      name: "bohemauth",
+      version: "1",
+    };
+
+    const types = {
+      EditProduct: [
+        { name: "id", type: "string" },
+        { name: "name", type: "string" },
+        { name: "description", type: "string" },
+      ],
+    };
+
+    const message = {
+      id,
+      name,
+      description,
+    };
+
+    const isValid = await verifySignature(
+      domain,
+      types,
+      message,
+      signature,
+      address
+    );
+
+    if (!isValid) {
+      return res.json({
+        success: false,
+        message: "Invalid signature",
+      });
+    }
+
+    const product = await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        description,
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Product updated successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Edit product error:", error);
+    return res.json({
+      success: false,
+      message: "Failed to edit product",
+      error: error.message,
+    });
+  }
+};
+
+const getProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.json({
+        success: false,
+        message: "Missing product ID",
+      });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return res.json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Product fetched successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Get product error:", error);
+    return res.json({
+      success: false,
+      message: "Failed to get product",
+      error: error.message,
+    });
+  }
+};
+
+export {
+  createProduct,
+  uploadProductImage,
+  listProducts,
+  editProduct,
+  getProduct,
+};
