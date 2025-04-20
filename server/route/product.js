@@ -21,6 +21,7 @@ import {
   listProducts,
   editProduct,
   getProduct,
+  launchProduct,
 } from "../controllers/productController.js";
 
 router.post("/create", createProduct);
@@ -28,5 +29,6 @@ router.post("/upload", upload.single("image"), uploadProductImage);
 router.get("/list/:address", listProducts);
 router.post("/edit", editProduct);
 router.get("/get/:id", getProduct);
+router.post("/launch/:id", launchProduct);
 
 export default router;

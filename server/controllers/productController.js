@@ -2,6 +2,9 @@ import { uploadToSevalla } from "../utils/s3Client.js";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "../utils/prisma.js";
 import { verifySignature } from "../utils/signature.js";
+import { ethers } from "ethers";
+import { getShardHash, keyToShares } from "../utils/shamir.js";
+import { bohemauthQueue } from "../utils/Queue.js";
 
 const createProduct = async (req, res) => {
   try {
@@ -265,10 +268,109 @@ const getProduct = async (req, res) => {
   }
 };
 
+const launchProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { address, signature } = req.body;
+
+    if (!id || !address || !signature) {
+      return res.json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    const domain = {
+      name: "bohemauth",
+      version: "1",
+    };
+
+    const types = {
+      LaunchProduct: [{ name: "id", type: "string" }],
+    };
+
+    const message = {
+      id,
+    };
+
+    const isValid = await verifySignature(
+      domain,
+      types,
+      message,
+      signature,
+      address
+    );
+
+    if (!isValid) {
+      return res.json({
+        success: false,
+        message: "Invalid signature",
+      });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return res.json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    if (product.status !== "DRAFT") {
+      return res.json({
+        success: false,
+        message: "Only products in DRAFT status can be launched",
+      });
+    }
+
+    const wallet = ethers.Wallet.createRandom();
+
+    const shares = await keyToShares(wallet.privateKey);
+
+    const shardHash = await getShardHash(wallet.privateKey);
+
+    await prisma.manufacturerShard.create({
+      data: {
+        userId: address,
+        productId: id,
+        shard: shares.shard1,
+      },
+    });
+
+    await prisma.product.update({
+      where: { id },
+      data: {
+        status: "QUEUED",
+        shard: shares.shard2,
+        ProductHash: shardHash.toString(),
+      },
+    });
+
+    await bohemauthQueue.add({ id });
+
+    return res.json({
+      success: true,
+      message: "Product launched successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Launch product error:", error);
+    return res.json({
+      success: false,
+      message: "Failed to launch product",
+      error: error.message,
+    });
+  }
+};
+
 export {
   createProduct,
   uploadProductImage,
   listProducts,
   editProduct,
   getProduct,
+  launchProduct,
 };

@@ -9,6 +9,7 @@ import allowedOrigins from "./allowedOrigins.js";
 import userRouter from "./route/user.js";
 import productRouter from "./route/product.js";
 import fdcRouter from "./route/fdc.js";
+import redis from "./utils/redis.js";
 
 // Load environment variables
 dotenv.config({ path: "./.env" });
@@ -70,6 +71,15 @@ async function startWorker(id) {
   // Listen for requests
   app.listen(PORT, () => {
     console.log(`Bohemauth Server worker ${id} is initialized on port ${PORT}`);
+  });
+
+  // Redis connection
+  redis.on("connect", async () => {
+    console.log("Successfully connected to Redis");
+  });
+
+  redis.on("error", (err) => {
+    console.error("Redis connection error:", err);
   });
 
   process.on("SIGTERM", async () => {

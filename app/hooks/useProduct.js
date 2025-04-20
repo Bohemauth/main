@@ -204,10 +204,70 @@ export default function useProduct() {
     }
   };
 
+  const launchProduct = async (id, isLaunching, setIsOpen) => {
+    try {
+      isLaunching(true);
+
+      if (!id) {
+        toast.error("Missing required fields");
+        return;
+      }
+
+      const domain = {
+        name: "bohemauth",
+        version: "1",
+      };
+
+      const types = {
+        LaunchProduct: [{ name: "id", type: "string" }],
+      };
+
+      const message = {
+        id,
+      };
+
+      const signature = await signTypedData(
+        {
+          domain,
+          types,
+          primaryType: "LaunchProduct",
+          message,
+        },
+        {
+          address: user.wallet.address,
+        }
+      );
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/product/launch/${id}`,
+        {
+          signature: signature.signature,
+          address: user.wallet.address,
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Failed to launch product");
+        return;
+      }
+      await listProducts();
+
+      setIsOpen(false);
+
+      toast.success("Product Added to Queue");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to launch product");
+    } finally {
+      isLaunching(false);
+    }
+  };
+
   return {
     createProduct,
     listProducts,
     getProduct,
     editProduct,
+    launchProduct,
   };
 }

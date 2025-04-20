@@ -11,10 +11,13 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",
     "@aws-sdk/s3-request-presigner": "^3.787.0",
+    "@noir-lang/backend_barretenberg": "^0.30.0",
+    "@noir-lang/noir_js": "^0.30.0",
     "@prisma/client": "^6.6.0",
     "axios": "^1.8.4",
     "bull": "^4.16.5",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "ethers": "^5.7.2",
     "express": "^5.1.0",

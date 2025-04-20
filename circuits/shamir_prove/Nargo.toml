@@ -1,5 +1,5 @@
 [package]
-name = "shamir_generate_2_2"
+name = "shamir_prove"
 type = "bin"
 authors = [""]
 compiler_version = ">=0.30.0"

@@ -55,7 +55,7 @@ model ManufacturerShard {
 }
 
 model Claim {
-    id        String   @id
+    id        String   @id @default(uuid())
     User      User     @relation(fields: [userId], references: [address])
     userId    String
     productId String

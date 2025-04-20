@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import LaunchButton from "./LaunchButton";
 
 export default function ProductList({ products, search, setSearch }) {
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -58,7 +59,7 @@ export default function ProductList({ products, search, setSearch }) {
                       </Button>
                     )}
 
-                    {product.status !== "DRAFT" && (
+                    {product.status === "LAUNCHED" && (
                       <Button
                         className="rounded-none  bg-white text-black w-fit"
                         onPress={() => {}}
@@ -67,13 +68,7 @@ export default function ProductList({ products, search, setSearch }) {
                       </Button>
                     )}
 
-                    <Button
-                      className="rounded-none  bg-white text-black w-fit"
-                      onPress={() => {}}
-                      isDisabled={product.status !== "DRAFT"}
-                    >
-                      {product.status === "DRAFT" ? "Launch" : "Launched"}
-                    </Button>
+                    <LaunchButton product={product} />
                   </div>
                 </div>
               </div>
