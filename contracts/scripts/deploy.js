@@ -11,9 +11,13 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  const contract = await hre.ethers.deployContract("Name", [], {
-    gasLimit: 4000000,
-  });
+  const contract = await hre.ethers.deployContract(
+    "BohemAuth",
+    ["0xBf2D2E15d7C73e67126328eAA7D3a95e414442aB"],
+    {
+      gasLimit: 4000000,
+    }
+  );
 
   console.log("Contract address:", await contract.getAddress());
 }

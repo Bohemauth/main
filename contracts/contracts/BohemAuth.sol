@@ -1,20 +1,26 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {ContractRegistry} from "@flarenetwork/flare-periphery-contracts/coston/ContractRegistry.sol";
-import {IFdcVerification} from "@flarenetwork/flare-periphery-contracts/coston/IFdcVerification.sol";
-import {IJsonApi} from "@flarenetwork/flare-periphery-contracts/coston/IJsonApi.sol";
+import {ContractRegistry} from "@flarenetwork/flare-periphery-contracts/coston2/ContractRegistry.sol";
+import {IFdcVerification} from "@flarenetwork/flare-periphery-contracts/coston2/IFdcVerification.sol";
+import {IJsonApi} from "@flarenetwork/flare-periphery-contracts/coston2/IJsonApi.sol";
 import {Conversion} from "./libraries/Conversion.sol";
 import {ProofManager} from "./base/ProofManager.sol";
 
 contract BohemAuth is ProofManager {
     struct Product {
+        string name;
+        string description;
+        string image;
         bytes32 productHash;
         string uri;
     }
 
     struct DataTransportObject {
         string id;
+        string name;
+        string description;
+        string image;
         string productHash;
         string uri;
     }
@@ -56,6 +62,9 @@ contract BohemAuth is ProofManager {
         );
 
         products[dto.id] = Product({
+            name: dto.name,
+            description: dto.description,
+            image: dto.image,
             productHash: Conversion.hexStringToBytes32(dto.productHash),
             uri: dto.uri
         });
@@ -64,11 +73,18 @@ contract BohemAuth is ProofManager {
     }
 
     function verifyProductClaim(
-        string calldata productId,
+        IJsonApi.Proof calldata _proof,
         bytes calldata proof,
         string calldata claimId
     ) public view returns (bool) {
-        Product memory product = products[productId];
+        require(isJsonApiProofValid(_proof), "Invalid proof");
+
+        DataTransportObject memory dto = abi.decode(
+            _proof.data.responseBody.abi_encoded_data,
+            (DataTransportObject)
+        );
+
+        Product memory product = products[dto.id];
 
         return verify(proof, claimId, product.productHash, verifier);
     }

@@ -7,19 +7,22 @@ import { ethers } from "ethers";
 dotenv.config();
 
 // Request data
-const apiUrl = "https://jsonplaceholder.typicode.com/todos/1";
 const postprocessJq = `{
-    userId: .userId | tonumber,
-    id: .id | tonumber,
-    title: .title,
-    completed: .completed
+    id: .id,
+    name: .name,
+    description: .description,
+    image: .image,
+    productHash: .productHash,
+    uri: .uri
 }`;
 const abiSignature = `{
     "components": [
-        {"internalType": "uint8","name": "userId","type": "uint8"},
-        {"internalType": "uint8","name": "id","type": "uint8"},
-        {"internalType": "string","name": "title","type": "string"},
-        {"internalType": "bool","name": "completed","type": "bool"}
+        {"internalType": "string","name": "id","type": "string"},
+        {"internalType": "string","name": "name","type": "string"},
+        {"internalType": "string","name": "description","type": "string"},
+        {"internalType": "string","name": "image","type": "string"},
+        {"internalType": "string","name": "productHash","type": "string"},
+        {"internalType": "string","name": "uri","type": "string"}
     ],
     "name": "task",
     "type": "tuple"
@@ -191,7 +194,7 @@ async function postRequestToDALayer(url, request, watchStatus = false) {
   return await response.json();
 }
 
-const main = async (req, res) => {
+const prepareProductProof = async (apiUrl) => {
   try {
     const data = await prepareAttestationRequest(
       apiUrl,
@@ -205,20 +208,36 @@ const main = async (req, res) => {
 
     const proof = await retrieveDataAndProof(abiEncodedRequest, roundId);
 
-    return res.json({
+    return {
       success: true,
+      sourceId: toUtf8HexString(sourceIdBase),
+      attestationType: toUtf8HexString(attestationTypeBase),
+      postprocessJq,
+      abiSignature,
       data,
       proof,
       roundId,
       message: "FDC endpoint reached",
-    });
+    };
   } catch (error) {
     console.log(error);
-    return res.json({
+    return {
       success: false,
       message: error.message,
-    });
+    };
   }
+};
+
+const decodeResponse = (response_hex) => {
+  const abi = contracts.getABI("iJsonApiVerification", "coston2");
+  const responseType = abi[0].inputs[0].components[1];
+
+  const decodedResponse = ethers.utils.defaultAbiCoder.decode(
+    [responseType],
+    response_hex
+  );
+
+  return decodedResponse[0];
 };
 
 function toHex(data) {
@@ -237,4 +256,4 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export { main };
+export { prepareProductProof, decodeResponse };

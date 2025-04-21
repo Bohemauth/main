@@ -8,9 +8,9 @@ import allowedOrigins from "./allowedOrigins.js";
 
 import userRouter from "./route/user.js";
 import productRouter from "./route/product.js";
-import fdcRouter from "./route/fdc.js";
 import redis from "./utils/redis.js";
 import listingRouter from "./route/listing.js";
+import { loadQueuedProduct } from "./utils/Queue.js";
 
 // Load environment variables
 dotenv.config({ path: "./.env" });
@@ -59,7 +59,6 @@ async function startWorker(id) {
 
   app.use("/api/user", userRouter);
   app.use("/api/product", productRouter);
-  app.use("/api/fdc", fdcRouter);
   app.use("/api/listing", listingRouter);
 
   app.get("/health", (req, res) => {
@@ -78,6 +77,9 @@ async function startWorker(id) {
   // Redis connection
   redis.on("connect", async () => {
     console.log("Successfully connected to Redis");
+    if (id === 1) {
+      loadQueuedProduct();
+    }
   });
 
   redis.on("error", (err) => {
