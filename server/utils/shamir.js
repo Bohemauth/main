@@ -10,6 +10,7 @@ import {
 
 const require = createRequire(import.meta.url);
 
+const shamirProve = require("../circuits/shamir_prove.json");
 const shamirGenerate = require("../circuits/shamir_generate_2_3.json");
 const p2Hash = require("../circuits/p2_hash_32.json");
 
@@ -80,3 +81,32 @@ function generateRandomCoefficients(count) {
   }
   return coefficients;
 }
+
+export const generateProof = async (shares, message, shardHash) => {
+  const backend = new BarretenbergBackend(shamirProve);
+  const noir = new Noir(shamirProve, backend);
+
+  const inputs = {
+    shares: [
+      {
+        x: 1,
+        y: Array.from(
+          uint8ArrayToUint32Array(ethers.utils.arrayify(shares.shard1))
+        ),
+      },
+      {
+        x: 2,
+        y: Array.from(
+          uint8ArrayToUint32Array(ethers.utils.arrayify(shares.shard2))
+        ),
+      },
+    ],
+    claimId: message,
+    hash: shardHash,
+  };
+
+  const { witness } = await noir.execute(inputs);
+  const rawProof = await backend.generateProof(witness);
+  const proof = ethers.utils.hexlify(rawProof.proof);
+  return proof;
+};
