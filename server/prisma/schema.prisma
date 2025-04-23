@@ -32,6 +32,7 @@ model Product {
     User               User                @relation(fields: [userId], references: [address])
     userId             String
     ManufacturerShards ManufacturerShard[]
+    Listings           Listing[]
     status             String
     shard              String?
     ProductHash        String?
@@ -55,13 +56,34 @@ model ManufacturerShard {
     @@index([userId, productId])
 }
 
+model Listing {
+    id        String   @id @default(uuid())
+    productId String
+    Product   Product  @relation(fields: [productId], references: [id])
+    isClaimed Boolean
+    claims    Claim[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([productId])
+}
+
+model Proof {
+    id        String   @id @default(uuid())
+    proof     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model Claim {
     id        String   @id @default(uuid())
     User      User     @relation(fields: [userId], references: [address])
     userId    String
-    productId String
+    nftId     String
+    Listing   Listing  @relation(fields: [listingId], references: [id])
+    listingId String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([userId, productId])
+    @@index([userId, listingId])
 }

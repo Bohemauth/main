@@ -62,7 +62,9 @@ export default function ProductList({ products, search, setSearch }) {
                     {product.status === "LAUNCHED" && (
                       <Button
                         className="rounded-none  bg-white text-black w-fit"
-                        onPress={() => {}}
+                        onPress={() => {
+                          router.push(`/listing/${product.id}`);
+                        }}
                       >
                         Create Listing
                       </Button>

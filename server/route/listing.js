@@ -1,9 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 const router = express.Router();
-import { addListing } from "../controllers/listingController.js";
+import {
+  addListing,
+  getAllListings,
+} from "../controllers/listingController.js";
 dotenv.config();
 
 router.post("/add", addListing);
+router.get("/getAll/:id", getAllListings);
 
 export default router;

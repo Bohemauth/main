@@ -263,11 +263,88 @@ export default function useProduct() {
     }
   };
 
+  const createListing = async (id, isCreating) => {
+    try {
+      isCreating(true);
+
+      if (!id) {
+        toast.error("Missing required fields");
+        return;
+      }
+
+      const domain = {
+        name: "bohemauth",
+        version: "1",
+      };
+
+      const types = {
+        AddListing: [{ name: "productId", type: "string" }],
+      };
+
+      const message = {
+        productId: id,
+      };
+
+      const signature = await signTypedData(
+        {
+          domain,
+          types,
+          primaryType: "AddListing",
+          message,
+        },
+        {
+          address: user.wallet.address,
+        }
+      );
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/listing/add`,
+        {
+          productId: id,
+          signature: signature.signature,
+          address: user.wallet.address,
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Failed to create listing");
+        return;
+      }
+      toast.success("Listing created successfully");
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to create listing");
+    } finally {
+      isCreating(false);
+    }
+  };
+
+  const getAllListings = async (id) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/listing/getAll/${id}`
+      );
+      if (!response.data.success) {
+        toast.error("Failed to get listings");
+        return [];
+      }
+      return response.data.listings;
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to get listings");
+      return [];
+    }
+  };
+
   return {
     createProduct,
     listProducts,
     getProduct,
     editProduct,
     launchProduct,
+    createListing,
+    getAllListings,
   };
 }

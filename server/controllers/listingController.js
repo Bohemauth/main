@@ -1,23 +1,116 @@
+import prisma from "../utils/prisma.js";
 import { generateProof } from "../utils/shamir.js";
+import { verifySignature } from "../utils/signature.js";
 
 const addListing = async (req, res) => {
   try {
-    const shard1 =
-      "0x4c1200009e1d0000080300005916000070130000b9030000b41a000027160000f00c00007b0d0000d6090000e3190000e1100000b7190000970c0000c910000074100000130e000022180000ba14000098180000ef180000e51400000d1d0000231d0000ce0f0000bf1b0000071d000002110000d11600008d0b00003b070000";
-    const shard2 =
-      "0x55240000fe3a0000ce050000a02c000056260000a00600002f350000802b0000731900003f1a000009130000f93200001d210000a6320000471800000721000008200000b71b0000742f0000ff280000c0300000123100009c29000060390000ce390000561f000048370000b1390000b1210000c22c0000ed1600005d0e0000";
+    const { productId, address, signature } = req.body;
 
-    const shardHash =
-      "0x07487f6f1a3b99d81574c0e3f0640a5f2e8df23b65cb4e06cfe22465de310e43";
+    if (!productId || !address || !signature) {
+      return res.json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
 
-    const id = "3abb0d08-c383-4103-9cb8-59ff80d0c7a8";
+    const domain = {
+      name: "bohemauth",
+      version: "1",
+    };
 
-    const proof = await generateProof({ shard1, shard2 }, id, shardHash);
+    const types = {
+      AddListing: [{ name: "productId", type: "string" }],
+    };
+
+    const message = {
+      productId,
+    };
+
+    const isValid = await verifySignature(
+      domain,
+      types,
+      message,
+      signature,
+      address
+    );
+
+    if (!isValid) {
+      return res.json({
+        success: false,
+        message: "Invalid signature",
+      });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    if (product.userId !== address) {
+      return res.json({
+        success: false,
+        message: "You are not the manufacturer of this product",
+      });
+    }
+
+    if (product.status !== "LAUNCHED") {
+      return res.json({
+        success: false,
+        message: "Product is not launched",
+      });
+    }
+
+    const listing = await prisma.listing.create({
+      data: {
+        productId,
+        isClaimed: false,
+      },
+    });
+
+    const id = listing.id;
+
+    const manufacturerShard = await prisma.manufacturerShard.findUnique({
+      where: {
+        userId_productId: {
+          userId: address,
+          productId: productId,
+        },
+      },
+    });
+
+    if (!manufacturerShard) {
+      return res.json({
+        success: false,
+        message: "Manufacturer shard not found",
+      });
+    }
+
+    const proof = await generateProof(
+      {
+        shard1: manufacturerShard.shard,
+        shard2: product.shard,
+      },
+      id,
+      product.ProductHash
+    );
+
+    const proofPayload = await prisma.proof.create({
+      data: {
+        proof,
+      },
+    });
 
     return res.json({
       success: true,
       message: "Listing added successfully",
-      proof,
+      listing,
+      proofId: proofPayload.id,
     });
   } catch (error) {
     console.error("Add listing error:", error);
@@ -29,4 +122,38 @@ const addListing = async (req, res) => {
   }
 };
 
-export { addListing };
+const getAllListings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await prisma.product.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        Listings: true,
+      },
+    });
+
+    if (!product) {
+      return res.json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Listings fetched successfully",
+      listings: product.Listings,
+    });
+  } catch (error) {
+    console.error("Get all listings error:", error);
+    return res.json({
+      success: false,
+      message: "Failed to get listings",
+      error: error.message,
+    });
+  }
+};
+
+export { addListing, getAllListings };
