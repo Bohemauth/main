@@ -16,7 +16,12 @@ import { useParams, use } from "next/navigation";
 import QRCodeGenerator from "@/components/ui/QrCodeGenerator";
 import QrCodeWithLogo from "qrcode-with-logos";
 
-export default function CreateListingButton({ className, size, product }) {
+export default function CreateListingButton({
+  className,
+  size,
+  product,
+  handleListing,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isListing, setIsListing] = useState(false);
   const { createListing } = useProduct();
@@ -33,6 +38,7 @@ export default function CreateListingButton({ className, size, product }) {
         `${window.location.origin}/redeem?listingId=${payload?.listing?.id}&proof=${payload?.proof}`
       );
       setStep(2);
+      await handleListing();
     } catch (error) {
       console.error("Create listing error:", error);
     }

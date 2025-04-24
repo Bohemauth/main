@@ -110,3 +110,41 @@ export const generateProof = async (shares, message, shardHash) => {
   const proof = ethers.utils.hexlify(rawProof.proof);
   return proof;
 };
+
+export const verifyProof = async (proof, message, shardHash) => {
+  try {
+    const backend = new BarretenbergBackend(shamirProve);
+    const noir = new Noir(shamirProve, backend);
+
+    const publicInputs = stringToByteArray(message);
+    publicInputs.push(shardHash);
+
+    const isValid = await noir.verifyProof({
+      proof: Array.from(ethers.utils.arrayify(proof)),
+      publicInputs,
+    });
+    return isValid;
+  } catch (error) {
+    console.error("Verify proof error:", error);
+    return false;
+  }
+};
+
+function stringToByteArray(input) {
+  // Convert the string to array of character codes (similar to bytes in Solidity)
+  const stringBytes = Array.from(input).map((char) => char.charCodeAt(0));
+
+  // Create an array to hold the results (equivalent to bytes32[] in Solidity)
+  const result = [];
+
+  // For each byte in the string
+  for (let i = 0; i < stringBytes.length; i++) {
+    // Convert the byte to a bytes32 value (padded with zeros)
+    // In JS we'll represent each bytes32 as a hex string padded to 64 characters
+    const charCode = stringBytes[i];
+    const paddedHex = "0x" + charCode.toString(16).padStart(64, "0");
+    result.push(paddedHex);
+  }
+
+  return result;
+}

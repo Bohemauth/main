@@ -1,6 +1,8 @@
 import prisma from "../utils/prisma.js";
-import { generateProof } from "../utils/shamir.js";
+import { generateProof, verifyProof } from "../utils/shamir.js";
 import { verifySignature } from "../utils/signature.js";
+import wallet from "../lib/wallet.js";
+import contracts from "../lib/config.js";
 
 const addListing = async (req, res) => {
   try {
@@ -156,4 +158,217 @@ const getAllListings = async (req, res) => {
   }
 };
 
-export { addListing, getAllListings };
+const validateListing = async (req, res) => {
+  try {
+    const { listingId, proofId } = req.body;
+
+    if (!listingId || !proofId) {
+      return res.json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    const listing = await prisma.listing.findUnique({
+      where: {
+        id: listingId,
+      },
+      include: {
+        Product: true,
+      },
+    });
+
+    if (!listing) {
+      return res.json({
+        success: false,
+        message: "Listing not found",
+      });
+    }
+
+    const proof = await prisma.proof.findUnique({
+      where: {
+        id: proofId,
+      },
+    });
+
+    if (!proof) {
+      return res.json({
+        success: true,
+        message: "Proof not found",
+        listing,
+        isValid: false,
+      });
+    }
+
+    const isValid = await verifyProof(
+      proof.proof,
+      listing.id,
+      listing.Product.ProductHash
+    );
+
+    return res.json({
+      success: true,
+      message: "Listing validated successfully",
+      isValid,
+      listing,
+    });
+  } catch (error) {
+    console.error("Validate listing error:", error);
+    return res.json({
+      success: false,
+      message: "Failed to validate listing",
+      error: error.message,
+    });
+  }
+};
+
+const redeemListing = async (req, res) => {
+  try {
+    const { listingId, proofId, signature, address } = req.body;
+
+    if (!listingId || !proofId || !address || !signature) {
+      return res.json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    const domain = {
+      name: "bohemauth",
+      version: "1",
+    };
+
+    const types = {
+      RedeemListing: [
+        { name: "listingId", type: "string" },
+        { name: "proofId", type: "string" },
+      ],
+    };
+
+    const message = {
+      listingId,
+      proofId,
+    };
+
+    const isSignatureValid = await verifySignature(
+      domain,
+      types,
+      message,
+      signature,
+      address
+    );
+
+    if (!isSignatureValid) {
+      return res.json({
+        success: false,
+        message: "Invalid signature",
+      });
+    }
+
+    const listing = await prisma.listing.findUnique({
+      where: {
+        id: listingId,
+      },
+      include: {
+        Product: true,
+      },
+    });
+
+    if (!listing) {
+      return res.json({
+        success: false,
+        message: "Listing not found",
+      });
+    }
+
+    if (listing.isClaimed) {
+      return res.json({
+        success: false,
+        message: "Listing already claimed",
+      });
+    }
+
+    const proof = await prisma.proof.findUnique({
+      where: {
+        id: proofId,
+      },
+    });
+
+    if (!proof) {
+      return res.json({
+        success: true,
+        message: "Proof not found",
+        listing,
+        isValid: false,
+      });
+    }
+
+    const isValid = await verifyProof(
+      proof.proof,
+      listing.id,
+      listing.Product.ProductHash
+    );
+
+    if (!isValid) {
+      return res.json({
+        success: false,
+        message: "Invalid proof",
+      });
+    }
+
+    const signer = wallet.getWallet("coston2");
+
+    const BohemAuthNFT = contracts.getContract("bohemAuthNFT", "coston2");
+
+    const nftId = Number(await BohemAuthNFT._nextTokenId());
+
+    const data = BohemAuthNFT.interface.encodeFunctionData("redeemProduct", [
+      listing.Product.fdcProof,
+      proof.proof,
+      listing.id,
+      address,
+    ]);
+
+    const transaction = await signer.sendTransaction({
+      to: BohemAuthNFT.address,
+      data,
+      value: 0,
+      gasLimit: 4000000,
+    });
+
+    await transaction.wait();
+
+    await prisma.listing.update({
+      where: {
+        id: listing.id,
+      },
+      data: {
+        isClaimed: true,
+      },
+    });
+
+    await prisma.claim.create({
+      data: {
+        userId: address,
+        nftId: nftId.toString(),
+        listingId: listing.id,
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Listing redeemed successfully",
+      listing,
+      nftId,
+    });
+  } catch (error) {
+    console.error("Redeem listing error:", error);
+    return res.json({
+      success: false,
+      message: "Failed to redeem listing",
+      error: error.message,
+    });
+  }
+};
+
+export { addListing, getAllListings, validateListing, redeemListing };

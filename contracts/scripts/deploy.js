@@ -12,8 +12,8 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
 
   const contract = await hre.ethers.deployContract(
-    "BohemAuth",
-    ["0xBf2D2E15d7C73e67126328eAA7D3a95e414442aB"],
+    "BohemAuthNFT",
+    ["0xa4E6692C0AA19Fc75265267a771188eCA57C3C49"],
     {
       gasLimit: 4000000,
     }

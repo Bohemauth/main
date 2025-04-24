@@ -95,7 +95,11 @@ export default function ListProduct() {
                   Create a listing for your product, so that customers can
                   verify and claim it
                 </p>
-                <CreateListingButton className="w-full" product={product} />
+                <CreateListingButton
+                  className="w-full"
+                  product={product}
+                  handleListing={handleListing}
+                />
               </div>
             </div>
           </div>
@@ -124,6 +128,7 @@ export default function ListProduct() {
                   <CreateListingButton
                     className="w-fit p-4"
                     product={product}
+                    handleListing={handleListing}
                   />
                 </div>
               </>

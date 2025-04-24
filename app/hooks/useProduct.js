@@ -338,6 +338,27 @@ export default function useProduct() {
     }
   };
 
+  const validateProduct = async (listingId, proofId) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/listing/validate`,
+        {
+          listingId,
+          proofId,
+        }
+      );
+      if (!response.data.success) {
+        toast.error("Failed to validate product");
+        return;
+      }
+      toast.success("Product validated successfully");
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to validate product");
+    }
+  };
+
   return {
     createProduct,
     listProducts,
@@ -346,5 +367,6 @@ export default function useProduct() {
     launchProduct,
     createListing,
     getAllListings,
+    validateProduct,
   };
 }

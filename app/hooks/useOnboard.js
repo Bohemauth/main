@@ -6,6 +6,7 @@ import {
   useLoginWithEmail,
   useCreateWallet,
   useSignTypedData,
+  useLogout,
   useUser as usePrivyUser,
 } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ export default function useOnboard() {
   const { getUser, createUser: createDbUser } = useUser();
   const { createWallet } = useCreateWallet();
   const { signTypedData } = useSignTypedData();
+  const { logout } = useLogout();
 
   const requestLogin = async (email, setIsOTPWindow, setIsRequestingLogin) => {
     try {
@@ -31,6 +33,8 @@ export default function useOnboard() {
         setIsRequestingLogin(false);
         return;
       }
+
+      await logout();
 
       await sendCode({ email });
       setIsOTPWindow(true);

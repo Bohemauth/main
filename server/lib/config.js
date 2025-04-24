@@ -7,6 +7,7 @@ const IFflareSystemsManager = require("./contracts/IFlareSystemsManager.json");
 const IRelay = require("./contracts/IRelay.json");
 const IJsonApiVerification = require("./contracts/IJsonApiVerification.json");
 const BohemAuth = require("./contracts/BohemAuth.json");
+const BohemAuthNFT = require("./contracts/BohemAuthNFT.json");
 import chains from "./chains.js";
 import ethers from "ethers";
 
@@ -47,6 +48,12 @@ const contracts = {
       address: "0x7FdBdEA39A0Ec5ac3c714dc2Dd530dc6ab37Db6e",
       chain: "coston2",
       abi: IJsonApiVerification.abi,
+    },
+    {
+      name: "bohemAuthNFT",
+      address: "0x95F1Adb21c4eF3E9a81FEEE6188A6afA727389f7",
+      chain: "coston2",
+      abi: BohemAuthNFT.abi,
     },
   ],
 

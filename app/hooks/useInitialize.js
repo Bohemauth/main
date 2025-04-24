@@ -29,7 +29,7 @@ export default function useInitialize() {
       const user = await getUser(loadedPrivyUser.wallet?.address);
 
       if (!user) {
-        router.push("/login");
+        router.push("/signup");
         return;
       }
 

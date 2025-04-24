@@ -76,14 +76,15 @@ model Proof {
 }
 
 model Claim {
-    id        String   @id @default(uuid())
-    User      User     @relation(fields: [userId], references: [address])
-    userId    String
-    nftId     String
-    Listing   Listing  @relation(fields: [listingId], references: [id])
-    listingId String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id          String   @id @default(uuid())
+    userId      String
+    nftId       String
+    Listing     Listing  @relation(fields: [listingId], references: [id])
+    listingId   String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    User        User?    @relation(fields: [userAddress], references: [address])
+    userAddress String?
 
     @@index([userId, listingId])
 }
