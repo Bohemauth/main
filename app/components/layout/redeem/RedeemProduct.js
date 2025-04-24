@@ -31,12 +31,12 @@ export default function RedeemProduct() {
   };
 
   useEffect(() => {
-    if (listingId && proofId) {
+    if (listingId) {
       handleValidate();
     }
-  }, [listingId, proofId]);
+  }, [listingId]);
 
-  if (!listingId || !proofId) {
+  if (!listingId) {
     return (
       <div className="flex flex-col gap-5">
         <div className="border border-[var(--foreground)] w-fit p-5">
@@ -85,12 +85,14 @@ export default function RedeemProduct() {
         </div>
         <p className="text-xl">Valid Listing</p>
       </div>
-      <div className="flex items-center gap-4 mt-2">
-        <div className="border border-[var(--foreground)] p-2">
-          {valid ? <Check size={15} /> : <X size={15} />}
+      {!listing?.isClaimed && (
+        <div className="flex items-center gap-4 mt-2">
+          <div className="border border-[var(--foreground)] p-2">
+            {valid ? <Check size={15} /> : <X size={15} />}
+          </div>
+          <p className="text-xl">{valid ? "Valid Proof" : "Invalid Proof"}</p>
         </div>
-        <p className="text-xl">{valid ? "Valid Proof" : "Invalid Proof"}</p>
-      </div>
+      )}
       <div className="flex items-center gap-4 mt-2">
         <div className="border border-[var(--foreground)] p-2">
           {listing?.isClaimed ? <Check size={15} /> : <X size={15} />}

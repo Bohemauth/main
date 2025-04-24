@@ -10,6 +10,7 @@ import userRouter from "./route/user.js";
 import productRouter from "./route/product.js";
 import redis from "./utils/redis.js";
 import listingRouter from "./route/listing.js";
+import claimRouter from "./route/claim.js";
 import { loadQueuedProduct } from "./utils/Queue.js";
 
 // Load environment variables
@@ -60,6 +61,7 @@ async function startWorker(id) {
   app.use("/api/user", userRouter);
   app.use("/api/product", productRouter);
   app.use("/api/listing", listingRouter);
+  app.use("/api/claim", claimRouter);
 
   app.get("/health", (req, res) => {
     return res.json({

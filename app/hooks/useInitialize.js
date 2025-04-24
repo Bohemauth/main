@@ -13,6 +13,7 @@ export default function useInitialize() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { listProducts } = useProduct();
+  const { getUserClaims } = useUser();
 
   const initialize = async () => {
     try {
@@ -36,6 +37,7 @@ export default function useInitialize() {
       dispatch(setUser(user));
 
       await listProducts();
+      await getUserClaims(loadedPrivyUser.wallet?.address);
     } catch (error) {
       console.log(error);
     }

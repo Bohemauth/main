@@ -344,14 +344,17 @@ export default function useProduct() {
         `${process.env.NEXT_PUBLIC_API_URL}/listing/validate`,
         {
           listingId,
-          proofId,
+          proofId: proofId ? proofId : "dummy",
         }
       );
+
       if (!response.data.success) {
         toast.error("Failed to validate product");
         return;
       }
-      toast.success("Product validated successfully");
+      if (response.data.isValid) {
+        toast.success("Product validated successfully");
+      }
       return response.data;
     } catch (error) {
       console.log(error);
