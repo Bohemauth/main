@@ -32,7 +32,7 @@ export default function Footer() {
             variant="outline"
             className=" text-base text-[var(--foreground)] border border-[var(--foreground)] rounded-none mt-7"
             size="sm"
-            onPress={() => router.push("/login")}
+            onPress={() => router.push("/dashboard")}
           >
             Launch
           </Button>

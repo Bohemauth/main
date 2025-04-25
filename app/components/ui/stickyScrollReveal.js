@@ -13,16 +13,16 @@ const StickyScrollSection = () => {
 
   const items = [
     {
-      icon: <Lock />,
-      title: "Zero-Knowledge Proofs",
-      description:
-        "Manufacturers create cryptographic proofs of authenticity without revealing sensitive information",
-    },
-    {
       icon: <Blocks />,
       title: "Flare Data Connector",
       description:
         "Verifies product information against external databases and manufacturer records in real-time",
+    },
+    {
+      icon: <Lock />,
+      title: "Zero-Knowledge Proofs",
+      description:
+        "Manufacturers create cryptographic proofs of authenticity without revealing sensitive information",
     },
     {
       icon: <ShieldAlert />,

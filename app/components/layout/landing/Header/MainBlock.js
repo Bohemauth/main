@@ -16,7 +16,7 @@ export default function MainBlock() {
       <p className="text-2xl">Verified Truths. </p>
 
       <p className="mt-2 mb-4">
-        Bohemauth uses zero-knowledge proofs and Flare's Data Connector to
+        Bohemauth uses Flare's Data Connector and zero-knowledge proofs to
         verify product authenticity without compromising privacy.
       </p>
 
@@ -25,7 +25,7 @@ export default function MainBlock() {
           variant="outline"
           className="bg-white text-black rounded-none"
           size="sm"
-          onPress={() => router.push("/login")}
+          onPress={() => router.push("/dashboard")}
         >
           Launch
         </Button>
