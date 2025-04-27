@@ -21,6 +21,8 @@ This is the BohemAuth main repository which is built during _[Encode X Flare Hac
 - Flare's Data Connector Implementation in accordance with Prisma Schema - [_server/utils/fdc.js_](https://github.com/Bohemauth/main/blob/9670de75e251fe30418952e57da36b68062827aa/server/utils/fdc.js#L197)
 - Using FDC Proof to register products on BohemAuth Contract - [_server/utils/Queue.js_](https://github.com/Bohemauth/main/blob/9670de75e251fe30418952e57da36b68062827aa/server/utils/Queue.js#L73)
 - Using FDC Proof to redeem a listing - [_server/controllers/listingController.js_](https://github.com/Bohemauth/main/blob/9670de75e251fe30418952e57da36b68062827aa/server/controllers/listingController.js#L321)
+- Verification of Web2 Data through FDC (AddProduct) - [_contracts/contracts/BohemAuth.sol_](https://github.com/Bohemauth/main/blob/d8be52b7bfbdf3a3aca78fe62de76bbef15b7bbf/contracts/contracts/BohemAuth.sol#L56)
+- NFT Minting through FDC Proof and ZK-Proof (RedeemProduct) - [_contracts/contracts/BohemAuthNFT.sol_](https://github.com/Bohemauth/main/blob/d8be52b7bfbdf3a3aca78fe62de76bbef15b7bbf/contracts/contracts/BohemAuthNFT.sol#L29)
 
 ## Smart Contracts Implementation
 
